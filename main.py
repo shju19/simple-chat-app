@@ -16,7 +16,7 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 
 @app.get("/", response_class=HTMLResponse)
 async def get_form():
-    with open("index.html", "r") as f:
+    with open("templates/index.html", "r") as f:
         return HTMLResponse(content=f.read())
 
 @app.post("/chat", response_class=HTMLResponse)
