@@ -44,7 +44,7 @@ async def render_form(request: Request):
 async def handle_chat(request: Request, message: str = Form(...)):
 
     global chat_history
-    chat_history = chat_history[:1]  # keep only system prompt if you want
+    # chat_history = chat_history[:1]  # keep only system prompt if you want
 
     chat_history.append({"role": "user", "content": message})
 
