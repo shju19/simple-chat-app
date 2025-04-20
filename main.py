@@ -20,17 +20,28 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 # Set up Jinja2 templates for rendering HTML
 templates = Jinja2Templates(directory="templates")
 
+# Initialize an empty list to store chat history
+chat_history = []
+
+
 # Route to render the form (GET request)
 @app.get("/", response_class=HTMLResponse)
 async def render_form(request: Request):
     """
     Render the main form page.
     """
-    return templates.TemplateResponse("index.html", {"request": request})
+    # return templates.TemplateResponse("index.html", {"request": request})
+    return templates.TemplateResponse("index.html", {"request": request, "chat_history": chat_history})
+
 
 # Route to handle chat messages (POST request)
 @app.post("/chat", response_class=HTMLResponse)
 async def handle_chat(request: Request, message: str = Form(...)):
+
+    global chat_history
+
+    chat_history.append({"role": "user", "content": message})
+
     """
     Handle user chat input and return a response from OpenAI's GPT model.
     """
@@ -43,15 +54,19 @@ async def handle_chat(request: Request, message: str = Form(...)):
         )
         # Extract the reply from the API response
         reply = response.choices[0].message.content.strip()
+        chat_history.append({"role": "assistant", "content": reply})
     except Exception as e:
         # Handle any errors and return an error message
         reply = f"Error: {str(e)}"
+        chat_history.append({"role": "assistant", "content": reply})
+
     
     # Render the response back to the user
     return templates.TemplateResponse("index.html", {
         "request": request,
-        "response": reply
+        "response": chat_history
     })
+
 
 # Entry point for running the application
 if __name__ == "__main__":

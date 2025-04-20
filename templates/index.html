@@ -1,24 +1,34 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>Simple Chat</title>
+    <title>Chat with AI</title>
     <link rel="stylesheet" href="/static/style.css" />
   </head>
   <body>
-    <h2>Ask me anything</h2>
-    <form action="/chat" method="post">
-      <input
-        type="text"
-        name="message"
-        placeholder="Type something..."
-        required
-      />
-      <button type="submit">Send</button>
-    </form>
+    <div class="chat-container">
+      <h2>🌟 Cosmic Chat 🌟</h2>
+      <div class="chat-box">
+        {% if chat_history %} {% for msg in chat_history %}
+        <div class="chat-message {{ msg.role }}">
+          <div class="avatar">
+            {{ "🧠" if msg.role == "assistant" else "👤" }}
+          </div>
+          <div class="bubble">
+            <p>{{ msg.content }}</p>
+          </div>
+        </div>
+        {% endfor %} {% endif %}
+      </div>
 
-    {% if response %}
-    <h3>Response:</h3>
-    <p>{{ response }}</p>
-    {% endif %}
+      <form action="/chat" method="post">
+        <input
+          type="text"
+          name="message"
+          placeholder="Say something..."
+          required
+        />
+        <button type="submit">Send</button>
+      </form>
+    </div>
   </body>
 </html>
