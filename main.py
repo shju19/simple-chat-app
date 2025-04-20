@@ -4,12 +4,12 @@ from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from dotenv import load_dotenv
-import openai
+from openai import OpenAI
 import uvicorn
 
 # Load environment variables from a .env file
 load_dotenv()
-openai.api_key = os.getenv("OPENAI_API_KEY")  # Set OpenAI API key from environment variable
+client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))  # Set OpenAI API key from environment variable
 
 # Initialize the FastAPI application
 app = FastAPI()
@@ -21,7 +21,12 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 templates = Jinja2Templates(directory="templates")
 
 # Initialize an empty list to store chat history
-chat_history = []
+chat_history = [
+    {
+        "role": "system",
+        "content": "You are Cosmic Hype Queen ✨ — an energetic, warm, cosmic-themed AI who always brings good vibes. Respond like a supportive and sparkly friend."
+    }
+]
 
 
 # Route to render the form (GET request)
@@ -39,6 +44,7 @@ async def render_form(request: Request):
 async def handle_chat(request: Request, message: str = Form(...)):
 
     global chat_history
+    chat_history = chat_history[:1]  # keep only system prompt if you want
 
     chat_history.append({"role": "user", "content": message})
 
@@ -47,13 +53,14 @@ async def handle_chat(request: Request, message: str = Form(...)):
     """
     try:
         # Call OpenAI's ChatCompletion API with the user's message
-        response = openai.ChatCompletion.create(
-            model="gpt-3.5-turbo",
-            messages=chat_history,
-            max_tokens=300
+        response = client.chat.completions.create(
+        model="gpt-3.5-turbo",
+        messages=chat_history,
+        max_tokens=300
         )
         # Extract the reply from the API response
         reply = response.choices[0].message.content.strip()
+
         chat_history.append({"role": "assistant", "content": reply})
     except Exception as e:
         # Handle any errors and return an error message
