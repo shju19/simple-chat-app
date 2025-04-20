@@ -49,7 +49,7 @@ async def handle_chat(request: Request, message: str = Form(...)):
         # Call OpenAI's ChatCompletion API with the user's message
         response = openai.ChatCompletion.create(
             model="gpt-3.5-turbo",
-            messages=[{"role": "user", "content": message}],
+            messages=chat_history,
             max_tokens=300
         )
         # Extract the reply from the API response
@@ -64,7 +64,7 @@ async def handle_chat(request: Request, message: str = Form(...)):
     # Render the response back to the user
     return templates.TemplateResponse("index.html", {
         "request": request,
-        "response": chat_history
+        "chat_history": chat_history
     })
 
 
